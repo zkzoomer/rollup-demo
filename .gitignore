@@ -1,0 +1,12 @@
+# circomlib package
+circomlib/
+
+node_modules/
+
+# pot ceremonies
+verify_eddsa_mimc/pot/
+verify_eddsa_poseidon/pot/
+verify_merkle/pot/
+verify_multiple_tokens_transfer_and_withdraw/proof_multiple/pot/
+verify_multiple_tokens_transfer_and_withdraw/proof_withdraw/pot/
+verify_single_transaction/proof/pot/
