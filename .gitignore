@@ -1,6 +1,4 @@
-# circomlib package
-circomlib/
-
+# Dependency
 node_modules/
 
 # pot ceremonies
