@@ -26,16 +26,22 @@ module.exports = class Transaction  {
     }
 
     hashTx(){
-        // hash unsigned transaction
-        const txHash = poseidon([
+        // hash unsigned transaction in subleaf mode
+        const leftSubLeaf = poseidon([
             this.fromX.toString(),
             this.fromY.toString(),
-            this.fromIndex.toString(),
             this.toX.toString(),
             this.toY.toString(),
+        ]);
+        const rightSubLeaf = poseidon([
+            this.fromIndex.toString(),
             this.nonce.toString(),
             this.amount.toString(),
             this.tokenType.toString()
+        ]);
+        const txHash = poseidon([
+            leftSubLeaf,
+            rightSubLeaf,
         ]);
         this.hash = txHash;
         return txHash

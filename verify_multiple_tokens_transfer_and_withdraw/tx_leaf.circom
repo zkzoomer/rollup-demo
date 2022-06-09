@@ -17,15 +17,22 @@ template TxLeaf() {
 
     signal output out;
 
-    component txLeaf = Poseidon(8);
-    txLeaf.inputs[0] <== from_x;
-    txLeaf.inputs[1] <== from_y;
-    txLeaf.inputs[2] <== from_index;
-    txLeaf.inputs[3] <== to_x;
-    txLeaf.inputs[4] <== to_y;
-    txLeaf.inputs[5] <== nonce;
-    txLeaf.inputs[6] <== amount;
-    txLeaf.inputs[7] <== token_type_from;
+    component txLeaf = Poseidon(2);
+    component leftSubLeaf = Poseidon(4);
+    component rightSubLeaf = Poseidon(4);
+
+    leftSubLeaf.inputs[0] <== from_x;
+    leftSubLeaf.inputs[1] <== from_y;
+    leftSubLeaf.inputs[2] <== to_x;
+    leftSubLeaf.inputs[3] <== to_y;
+
+    rightSubLeaf.inputs[0] <== from_index;
+    rightSubLeaf.inputs[1] <== nonce;
+    rightSubLeaf.inputs[2] <== amount;
+    rightSubLeaf.inputs[3] <== token_type_from;
+
+    txLeaf.inputs[0] <== leftSubLeaf.out;
+    txLeaf.inputs[1] <== rightSubLeaf.out;
 
     out <== txLeaf.out;
 }
