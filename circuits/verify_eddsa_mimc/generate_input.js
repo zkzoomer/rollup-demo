@@ -1,6 +1,6 @@
 const fs = require("fs");
-const eddsa = require("../helpers/eddsa.js");
-const mimcjs = require("../helpers/mimc7.js");
+const eddsa = require("../../helpers/eddsa.js");
+const mimcjs = require("../../helpers/mimc7.js");
 
 // Using BigInt to avoid a TypeError in the multiHash function below
 const preimage = [BigInt(123),BigInt(456),BigInt(789)];
