@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { buildPoseidon, poseidonContract } =  require("circomlibjs");
-const poseidon = require("../helpers/poseidon.js");
+const poseidon = require("../src/poseidon.js");
 const assert = require('assert');
 
 describe("PoseidonMerkle smart contract test", function () {
@@ -38,8 +38,6 @@ describe("PoseidonMerkle smart contract test", function () {
         poseidon2 = await P2.deploy();
         poseidon4 = await P4.deploy();
         poseidon5 = await P5.deploy();
-
-        console.log(poseidon2.address)
     });
 
     it("Calculates the Poseidon hash correctly", async () => {
@@ -81,10 +79,27 @@ describe("PoseidonMerkle smart contract test", function () {
         assert.equal(res5.toString(), pos5.toString());
     })
 
+    it("Does not calculate the Poseidon hash for an unsupported number of inputs", async () => {
+        await expect(poseidonMerkle.hashPoseidon([1])).to.be.revertedWith("Length of array is not suppported");
+        await expect(poseidonMerkle.hashPoseidon([1,2,3])).to.be.revertedWith("Length of array is not suppported");
+        await expect(poseidonMerkle.hashPoseidon([1,2,3,4,5,6])).to.be.revertedWith("Length of array is not suppported");
+        await expect(poseidonMerkle.hashPoseidon([1,2,3,4,5,7])).to.be.revertedWith("Length of array is not suppported");
+        await expect(poseidonMerkle.hashPoseidon([1,2,3,4,5,8])).to.be.revertedWith("Length of array is not suppported");
+    })
+
     it("Gets a root from provided proof and position", async () => {
-        const root1 = await poseidonMerkle.getRootFromProof(
-            
+        // Using some test hashes to verify the hashing is made correctly
+        const txLeaf = "19186308455265739472869206897619575926741774529294217504266944715222135200973";
+        const intRoot = "14574013181438614098012574653117760628708750248632626075616422055875204428280";
+        const txRoot = poseidon([txLeaf, intRoot])
+
+        const root = await poseidonMerkle.getRootFromProof(
+            txLeaf,
+            [0],  // position
+            [intRoot]
         )
+
+        assert.equal(txRoot.toString(), root.toString())
     })
 
 })

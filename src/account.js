@@ -1,4 +1,4 @@
-const poseidon = require("../../helpers/poseidon.js");
+const poseidon = require("./poseidon.js");
 
 module.exports = class Account {
     constructor(

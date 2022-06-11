@@ -1,13 +1,13 @@
 const eddsa = require("../../helpers/eddsa.js");
 const fs = require("fs");
-const Tree = require("../src/tree")
-const Account = require("../src/account.js");
-const AccountTree = require("../src/accountTree.js");
-const Transaction = require("../src/transaction.js");
-const TxTree = require("../src/txTree.js");
-const treeHelper = require("../src/treeHelper.js");
-const getCircuitInput = require("../src/circuitInput.js");
-const {stringifyBigInts, unstringifyBigInts} = require('../src/stringifybigint.js')
+const Tree = require("../../../src/tree")
+const Account = require("../../../src/account.js");
+const AccountTree = require("../../../src/accountTree.js");
+const Transaction = require("../../../src/transaction.js");
+const TxTree = require("../../../src/txTree.js");
+const treeHelper = require("../../../src/treeHelper.js");
+const getCircuitInput = require("../../../src/circuitInput.js");
+const {stringifyBigInts, unstringifyBigInts} = require('../../../src/stringifybigint.js')
 
 // const TX_DEPTH = 8
 // const BAL_DEPTH = 12

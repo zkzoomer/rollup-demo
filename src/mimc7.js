@@ -112,19 +112,10 @@ exports.multiHash = (arr, key) => {
         r = F.add(
             F.add(
                 r,
-                arr[i]
+                BigInt(arr[i])
             ),
-            exports.hash(F.e(arr[i]), r)
+            exports.hash(F.e(BigInt(arr[i])), r)
         );
     }
     return r;
 };
-
-// GIVES DIFFERENT RESULTS
-/* exports.multiHash = (arr) => {
-    let r = exports.getIV();
-    for (let i=0; i<arr.length; i++) {
-        r = exports.hash(r, BigInt(arr[i]));
-    }
-    return r;
-}; */

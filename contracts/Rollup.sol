@@ -11,19 +11,6 @@ contract IPoseidonMerkle {
     function hashPoseidon(uint256[] calldata) public view returns(uint) { }
 }
 
-contract ITokenRegistry {
-    address public coordinator;
-    uint256 public numTokens;
-    mapping(address => bool) public pendingTokens;
-    mapping(uint256 => address) public registeredTokens;
-    modifier onlyCoordinator() {
-        assert (msg.sender == coordinator);
-        _;
-    }
-    function registerToken(address tokenContract) public { }
-    function approveToken(address tokenContract) public onlyCoordinator { }
-}
-
 contract IERC20 {
     function transferFrom(address from, address to, uint256 value) public returns(bool) { }
     function transfer(address recipient, uint256 value) public returns(bool) { }
@@ -31,7 +18,6 @@ contract IERC20 {
 
 contract Rollup is UpdateVerifier, WithdrawVerifier {
     IPoseidonMerkle public poseidonMerkle;
-    ITokenRegistry public tokenRegistry;
     IERC20 public tokenContract;
 
     uint256 public currentRoot;
@@ -44,6 +30,10 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
     uint256 public BAL_DEPTH = 4;
     uint256 public TX_DEPTH = 2;
 
+    mapping(address => bool) public pendingTokens;  // token address => approval status
+    mapping(uint256 => address) public registeredTokens;  // token number => token address *ETH doesnt have an address
+    uint256 public numTokens;  // number of approved tokens
+
     mapping(uint256 => uint256) public deposits;  // leaf index => leaf hash
     mapping(uint256 => uint256) public updates;  // tx root => update index
     mapping(uint256 => bool) public processedWithdrawals;  // withdraw message hash => bool
@@ -53,12 +43,13 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
     event UpdatedState(uint currentRoot, uint oldRoot, uint txRoot);
     event Withdraw(uint256[9] accountInfo, address recipient);
 
-    constructor(address _poseidonMerkle, address _tokenRegistryAddr) {
+    constructor(address _poseidonMerkle) {
         poseidonMerkle = IPoseidonMerkle(_poseidonMerkle);
-        tokenRegistry = ITokenRegistry(_tokenRegistryAddr);
         currentRoot = poseidonMerkle.zeroCache(BAL_DEPTH);
 
         coordinator = msg.sender;
+
+        numTokens = 1;  // Rollup starts supporting ETH by default
 
         queueNumber = 0;
         depositSubtreeHeight = 0;
@@ -99,7 +90,7 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
             require(
                 amount > 0,
                 "token deposit must be greater than 0");
-            address tokenContractAddress = tokenRegistry.registeredTokens(tokenType);
+            address tokenContractAddress = registeredTokens[tokenType];
             tokenContract = IERC20(tokenContractAddress);
             require(
                 tokenContract.transferFrom(msg.sender, address(this), amount),
@@ -188,26 +179,11 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c
-    ) public{
+    ) public {
         require(txInfo[7] > 0, "Invalid token type");
         require(updates[txInfo[8]] > 0, "Transaction root does not exist");
 
         uint256 txLeaf = _verifyTx(txInfo);
-
-        /* uint256 txLeaf = poseidonMerkle.hashPoseidon([
-            poseidonMerkle.hashPoseidon([
-                txInfo[0],
-                txInfo[1],
-                txInfo[3],
-                txInfo[4]
-            ]),
-            poseidonMerkle.hashPoseidon([
-                txInfo[2],
-                txInfo[4],
-                txInfo[6],
-                txInfo[7]
-            ])
-        ]); */
         
         require(txInfo[8] == poseidonMerkle.getRootFromProof(
             txLeaf, position, proof),
@@ -223,7 +199,8 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
             a, b, c,
             [txInfo[0], txInfo[1], poseidonMerkle.hashPoseidon(msgArray)]
             ),
-            "EdDSA signature is not valid");
+            "EdDSA signature is not valid"
+        );
 
         // Transfer the tokens
         if (txInfo[7] == 1){
@@ -231,7 +208,7 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
             payable(recipient).transfer(txInfo[6]);
         } else {
             // ERC20
-            address tokenContractAddress = tokenRegistry.registeredTokens(txInfo[7]);
+            address tokenContractAddress = registeredTokens[txInfo[7]];
             tokenContract = IERC20(tokenContractAddress);
             require(
                 tokenContract.transfer(recipient, txInfo[6]),
@@ -244,12 +221,15 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
 
 
     function registerToken(address tokenContractAddress) public {
-        tokenRegistry.registerToken(tokenContractAddress);
+        require(!pendingTokens[tokenContractAddress], "Token already registered");
+        pendingTokens[tokenContractAddress] = true;
     }
 
     function approveToken(address tokenContractAddress) public onlyCoordinator {
-        tokenRegistry.approveToken(tokenContractAddress);
-        emit RegisteredToken(tokenRegistry.numTokens(),tokenContractAddress);
+        require(pendingTokens[tokenContractAddress], "Token was not registered");
+        numTokens++;
+        registeredTokens[numTokens] = tokenContractAddress;
+        emit RegisteredToken(numTokens,tokenContractAddress);
     }
 
     // helper functions
