@@ -70,9 +70,9 @@ describe("PoseidonMerkle smart contract test", function () {
         const res4 = await poseidonMerkle.hashPoseidon([1,2,3,4]);
         const res5 = await poseidonMerkle.hashPoseidon([1,2,3,4,5]);
 
-        const pos2 = poseidon([1,2]);
-        const pos4 = poseidon([1,2,3,4]);
-        const pos5 = poseidon([1,2,3,4,5]);
+        const pos2 = poseidon(["1","2"]);
+        const pos4 = poseidon(["1","2","3","4"]);
+        const pos5 = poseidon(["1","2","3","4","5"]);
 
         assert.equal(res2.toString(), pos2.toString());
         assert.equal(res4.toString(), pos4.toString());

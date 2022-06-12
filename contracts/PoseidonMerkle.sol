@@ -62,7 +62,7 @@ contract PoseidonMerkle {
         for (uint256 i = 1; i < _proof.length; i++) {
             if (_position[i] == 0) {  // left leaf
                 root[i] = poseidon2.poseidon([root[i - 1], _proof[i]]);
-            } else if (_position[0] == 1) {  // right leaf
+            } else if (_position[i] == 1) {  // right leaf
                 root[i] = poseidon2.poseidon([_proof[i], root[i - 1]]);
             }
         }

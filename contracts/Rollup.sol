@@ -63,7 +63,7 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
 
     function updateState(uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[3] memory input) public onlyCoordinator {
         // Can only update forward
-        require(currentRoot == input[2], "input does not match current root");
+        require(currentRoot == input[2], "Input does not match current root");
         // Validate proof
         require(verifyUpdateProof(a, b, c, input), "SNARK proof is invalid");
         // Update merkle root
@@ -134,7 +134,7 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         uint emptySubtreeRoot = poseidonMerkle.zeroCache(subtreeDepth); //empty subtree of height 2
         require(currentRoot == poseidonMerkle.getRootFromProof(
             emptySubtreeRoot, subtreePosition, subtreeProof),
-            "specified subtree is not empty");
+            "Specified subtree is not empty");
         currentRoot = poseidonMerkle.getRootFromProof(
             pendingDeposits[0], subtreePosition, subtreeProof);
         removeDeposit(0);
@@ -234,9 +234,9 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
 
     // helper functions
     function removeDeposit(uint index) internal returns(uint[] memory) {
-        require(index < pendingDeposits.length, "index is out of bounds");
+        require(index < pendingDeposits.length, "Index is out of bounds");
 
-        for (uint i = index; i<pendingDeposits.length-1; i++){
+        for (uint i = index; i < pendingDeposits.length - 1; i++){
             pendingDeposits[i] = pendingDeposits[i+1];
         }
         pendingDeposits.pop();

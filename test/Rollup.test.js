@@ -83,16 +83,16 @@ describe("Rollup contract tests", function () {
     })
 
     const pubkeyCoordinator = [
-        '5686635804472582232015924858874568287077998278299757444567424097636989354076',
-        '20652491795398389193695348132128927424105970377868038232787590371122242422611'
+        '1891156797631087029347893674931101305929404954783323547727418062433377377293',
+        '14780632341277755899330141855966417738975199657954509255716508264496764475094'
     ]
     const pubkeyA = [
-        '5188413625993601883297433934250988745151922355819390722918528461123462745458',
-        '12688531930957923993246507021135702202363596171614725698211865710242486568828'
+        '16854128582118251237945641311188171779416930415987436835484678881513179891664',
+        '8120635095982066718009530894702312232514551832114947239433677844673807664026'
     ]
     const pubkeyB = [
-        '3765814648989847167846111359329408115955684633093453771314081145644228376874',
-        '9087768748788939667604509764703123117669679266272947578075429450296386463456'
+        '17184842423611758403179882610130949267222244268337186431253958700190046948852',
+        '14002865450927633564331372044902774664732662568242033105218094241542484073498'
     ]
 
     it("Makes first batch of deposits", async () => {
@@ -124,7 +124,6 @@ describe("Rollup contract tests", function () {
         // await rollup.currentRoot().then(value => console.log(value.toString()));
     })
 
-    let first4Hash
     const first4HashPosition = [0, 0]
     const first4HashProof = [
         '14726732185301377694055836147998742577218505657530350941178791543526006846586',
@@ -133,15 +132,8 @@ describe("Rollup contract tests", function () {
     
     it("Processes the first batch of deposits", async () => {
         const pendingDepositsRoot = await rollup.pendingDeposits(0);
-        // console.log(pendingDepositsRoot)
-        first4Hash = poseidon([
-            poseidon([
-                pendingDepositsRoot,
-                first4HashProof[0]
-            ]).toString(),
-            first4HashProof[1]
-        ]).toString();
-        // console.log(first4Hash)
+        // console.log("first subtree root: ", pendingDepositsRoot)
+        // 6960010327421291228252508201419367439952682958152537088781183226962683807181
 
         await rollup.processDeposits(
             2,
@@ -150,23 +142,24 @@ describe("Rollup contract tests", function () {
         )
 
         // await rollup.currentRoot().then(value => console.log(value.toString()))
+        // 18466538241864797123870321785163926826062247087767621629240691857827325153252
     })
 
     const pubkeyC = [
-        '1762022020655193103898710344498807340207430243997238950919845130297394445492',
-        '8832411107013507530516405716520512990480512909708424307433374075372921372064'
+        '1490516688743074134051356933225925590384196958316705484247698997141718773914',
+        '18202685495984068498143988518836859608946904107634495463490807754016543014696'
     ]
     const pubkeyD = [
-        '14513915892014871125822366308671332087536577613591524212116219742227565204007',
-        '6808129454002661585298671177612815470269050142983438156881769576685169493119'
+        '605092525880098299702143583094084591591734458242948998084437633961875265263',
+        '5467851481103094839636181114653589464420161012539785001778836081994475360535'
     ]
     const pubkeyE = [
-        '20300689398049417995453571887069099991639845657899598560126131780687733391655',
-        '3065218658444486645254031909815995896141455256411822883766560586158143575806'
+        '6115308589625576351618964952901291926887010055096213039283160928208018634120',
+        '7748831575696937538520365609095562313470874985327756362863958469935920020098'
     ]
     const pubkeyF = [
-        '4466175261537103726537785696466743021163534542754750959075936842928329438365',
-        '15538720798538530286618366590344759598648390726703115865880683329910616143012'
+        '8497552053649025231196693001489376949137425670153512736866407813496427593491',
+        '2919902478295208415664305012229488283720319044050523257046455410971412405951'
     ]
 
     it("Makes the second batch of deposits", async () => {
@@ -181,30 +174,116 @@ describe("Rollup contract tests", function () {
         
     })
 
-    second4HashPosition = [1, 0]
-    second4HashProof = [
-        first4Hash,
+    const second4HashPosition = [1, 0]
+    const second4HashProof = [
+        '12819191360309232679792099574898289523791611627505351136339109161124786609513',
         '12988208845277721051100143718644487453578123519232446209748947254348137166056'
     ]
 
     it("Processes the second batch of deposits", async () => {
-        rollup.processDeposits(
+        await rollup.processDeposits(
             2,
             second4HashPosition,
             second4HashProof
         )
 
+        // await rollup.currentRoot().then(value => console.log("Current root: ", value.toString()))
+    })
+
+    let updateProof = require("../circuits/verify_multiple_tokens_transfer_and_withdraw/proof_multiple/proof.json");
+    const updateA = [
+        updateProof.pi_a[0], updateProof.pi_a[1]
+    ]
+    const updateB = [
+        [updateProof.pi_b[0][1], updateProof.pi_b[0][0]],
+        [updateProof.pi_b[1][1], updateProof.pi_b[1][0]],
+    ]
+    const updateC = [
+        updateProof.pi_c[0], updateProof.pi_c[1]
+    ]
+    const updateInput = require("../circuits/verify_multiple_tokens_transfer_and_withdraw/proof_multiple/public.json");
+
+    it("Accepts a valid state transition", async () => {
+        await rollup.updateState(
+            updateA, updateB, updateC, updateInput
+        )
+
         // await rollup.currentRoot().then(value => console.log(value.toString()))
     })
 
-    // TODO:
+    // Account C will now initiate a withdrawal
+    const pubkey_from = [
+        '1490516688743074134051356933225925590384196958316705484247698997141718773914',
+        '18202685495984068498143988518836859608946904107634495463490807754016543014696'
+    ]
+    const index = 4;
+    const nonce = 0;
+    const amount = 200;
+    const token_type_from = 2;
+    const position = [1, 0];
+    const txRoot = 
+        "19186308455265739472869206897619575926741774529294217504266944715222135200973"
+    const recipient = '0xC33Bdb8051D6d2002c0D80A1Dd23A1c9d9FC26E4';
 
-    it("Accepts a valid state transition", async () => {
+    let withdraw_proof = require("../circuits/verify_multiple_tokens_transfer_and_withdraw/proof_withdraw/proof.json");
+    const withdrawA = [
+        withdraw_proof.pi_a[0], withdraw_proof.pi_a[1]
+    ]
+    const withdrawB = [
+        [withdraw_proof.pi_b[0][1], withdraw_proof.pi_b[0][0]],
+        [withdraw_proof.pi_b[1][1], withdraw_proof.pi_b[1][0]],
+    ]
+    const withdrawC = [
+        withdraw_proof.pi_c[0], withdraw_proof.pi_c[1]
+    ]
+    const withdrawInput = require("../circuits/verify_multiple_tokens_transfer_and_withdraw/proof_withdraw/public.json");
 
-    })
+    const proof = [
+        "17622290836824899442790044432196603002230043363292230216071565951453532330697",
+        "17549222109753245772658415708953377529941918196958918546628754677657651638551"
+    ]
 
     it("Accepts valid withdrawals that get voided", async () => {
-        
+        await rollup.connect(alice).withdraw(
+            [
+                pubkey_from[0],
+                pubkey_from[1],
+                index,
+                0,  // toX
+                0,  // toY
+                nonce,
+                amount,
+                token_type_from,
+                txRoot,
+            ],
+            position,
+            proof,
+            recipient,  // recipient
+            withdrawA,
+            withdrawB,
+            withdrawC
+        )
+
+        expect(rollup.connect(alice).withdraw(
+            [
+                pubkey_from[0],
+                pubkey_from[1],
+                index,
+                0,  // toX
+                0,  // toY
+                nonce,
+                amount,
+                token_type_from,
+                txRoot,
+            ],
+            position,
+            proof,
+            recipient,  // recipient
+            withdrawA,
+            withdrawB,
+            withdrawC
+        )).to.be.revertedWith("Withdraw transaction already voided");
+
     })
 
 })

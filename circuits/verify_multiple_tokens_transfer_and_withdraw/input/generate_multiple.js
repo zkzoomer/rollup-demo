@@ -1,4 +1,4 @@
-const eddsa = require("../../helpers/eddsa.js");
+const eddsa = require("../../../src/eddsa.js");
 const fs = require("fs");
 const Tree = require("../../../src/tree")
 const Account = require("../../../src/account.js");
@@ -44,6 +44,7 @@ function generatePubkey(prvkey){
 
 const coordinatorPrvkey = generatePrvkey(1);
 const coordinatorPubkey = generatePubkey(coordinatorPrvkey);
+// console.log('Coordinator pubkey: ', coordinatorPubkey)
 const coordinator = new Account(
     1, coordinatorPubkey[0], coordinatorPubkey[1],
     0, 0, 0, coordinatorPrvkey
@@ -61,6 +62,7 @@ const nonces = [0, 0, 0, 0, 0, 0];
 for (var i = 0; i < numAccounts; i++){
     prvkey = generatePrvkey(i + 2);
     pubkey = generatePubkey(prvkey);
+    // console.log('Account ', i, ' public key: ', pubkey)
     account = new Account(
         i + 2, // index
         pubkey[0], // pubkey x coordinate

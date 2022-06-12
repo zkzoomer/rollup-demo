@@ -1,8 +1,8 @@
-const eddsa = require("../../helpers/eddsa.js");
+const eddsa = require("../../../src/eddsa.js");
 const snarkjs = require("snarkjs");
 const fs = require("fs");
-const poseidon = require("../../helpers/poseidon.js");
-const {stringifyBigInts, unstringifyBigInts} = require('../src/stringifybigint.js')
+const poseidon = require("../../../src/poseidon.js");
+const {stringifyBigInts, unstringifyBigInts} = require('../../../src/stringifybigint.js')
 
 var prvKey = Buffer.from("4".padStart(64,'0'), "hex");
 

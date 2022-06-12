@@ -1,5 +1,5 @@
-const poseidon = require("../../helpers/poseidon.js");
-const eddsa = require("../../helpers/eddsa.js");
+const poseidon = require("./poseidon.js");
+const eddsa = require("./eddsa.js");
 const {stringifyBigInts, unstringifyBigInts} = require('./stringifybigint.js')
 
 module.exports = class Transaction  {
