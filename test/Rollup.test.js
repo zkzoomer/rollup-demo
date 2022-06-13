@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { buildPoseidon, poseidonContract } =  require("circomlibjs");
-const poseidon = require("../src/poseidon.js");
+const poseidon = require("../../../src/poseidon.js");
 const assert = require('assert');
 
 describe("Rollup contract tests", function () {
