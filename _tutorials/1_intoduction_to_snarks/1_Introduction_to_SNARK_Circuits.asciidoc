@@ -1,7 +1,0 @@
-== SNARK Circuits
-
-
-=== The circom Language
-
-
-=== A Simple Example - Factoring a Number

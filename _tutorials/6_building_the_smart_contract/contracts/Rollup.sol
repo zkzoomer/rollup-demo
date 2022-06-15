@@ -34,6 +34,7 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
     mapping(uint256 => address) public registeredTokens;  // token number => token address *ETH doesnt have an address
     uint256 public numTokens;  // number of approved tokens
 
+    mapping(uint256 => uint256) public deposits;  // leaf index => leaf hash
     mapping(uint256 => uint256) public updates;  // tx root => update index
     mapping(uint256 => bool) public processedWithdrawals;  // withdraw message hash => bool
 

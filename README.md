@@ -28,3 +28,6 @@ A dishonest operator cannot forge signatures or create invalid state transitions
 - The implementation can be changed to a validity style rollup by simply making the _private_ circuit inputs _public_.
 - Accounts on the L2 can only support a single token each: public keys are related to a token type. Ideally each should be token agnostic.
 - State updates can only be performed by the assigned operator.
+
+## Acknowledgements
+This repository is based and extends on [RollupNC](https://github.com/rollupnc/RollupNC).
