@@ -1,7 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { buildPoseidon, poseidonContract } =  require("circomlibjs");
-const poseidon = require("../../../src/poseidon.js");
 const assert = require('assert');
 
 describe("Rollup contract tests", function () {
@@ -190,7 +189,7 @@ describe("Rollup contract tests", function () {
         // await rollup.currentRoot().then(value => console.log("Current root: ", value.toString()))
     })
 
-    let updateProof = require("../circuits/verify_multiple_tokens_transfer_and_withdraw/proof_multiple/proof.json");
+    let updateProof = require("./multiple_proof.json");
     const updateA = [
         updateProof.pi_a[0], updateProof.pi_a[1]
     ]
@@ -201,7 +200,7 @@ describe("Rollup contract tests", function () {
     const updateC = [
         updateProof.pi_c[0], updateProof.pi_c[1]
     ]
-    const updateInput = require("../circuits/verify_multiple_tokens_transfer_and_withdraw/proof_multiple/public.json");
+    const updateInput = require("./multiple_public.json");
 
     it("Accepts a valid state transition", async () => {
         await rollup.updateState(
@@ -225,7 +224,7 @@ describe("Rollup contract tests", function () {
         "19186308455265739472869206897619575926741774529294217504266944715222135200973"
     const recipient = '0xC33Bdb8051D6d2002c0D80A1Dd23A1c9d9FC26E4';
 
-    let withdraw_proof = require("../circuits/verify_multiple_tokens_transfer_and_withdraw/proof_withdraw/proof.json");
+    let withdraw_proof = require("./withdraw_proof.json");
     const withdrawA = [
         withdraw_proof.pi_a[0], withdraw_proof.pi_a[1]
     ]
@@ -236,7 +235,7 @@ describe("Rollup contract tests", function () {
     const withdrawC = [
         withdraw_proof.pi_c[0], withdraw_proof.pi_c[1]
     ]
-    const withdrawInput = require("../circuits/verify_multiple_tokens_transfer_and_withdraw/proof_withdraw/public.json");
+    const withdrawInput = require("./withdraw_public.json");
 
     const proof = [
         "17622290836824899442790044432196603002230043363292230216071565951453532330697",

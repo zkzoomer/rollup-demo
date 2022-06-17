@@ -42,7 +42,7 @@ These are cryptographic primitives that allow a prover to show to a verifier tha
 The back and forth nature of interactive proofs is not well suited for blockchain applications, and so we will focus on non interactive solutions.
 
 ## ZK-SNARKs
-Meaning _**Z**ero-**K**nowledge **S**uccinct **N**on-interactive **AR**gument of **K**nowledge_, proofs are generated so that checking a particular polynomial relationship between elements of the proof is equivalent to verifying the prover has a satisfying assignment for the circuit. This makes it easy to verify a proof (which is of constant size), while it is more computationally expensive to generate one. To generate these circuits, we will be using the [circom](https://docs.circom.io/) language.
+Meaning _**Z**ero-**K**nowledge **S**uccinct **N**on-interactive **AR**gument of **K**nowledge_, proofs are generated so that checking a particular polynomial relationship between elements of the proof is equivalent to verifying the prover has a satisfying assignment for the circuit. This makes it easy to verify a proof (which is of constant size), while it is more computationally expensive to generate one. 
 
 By executing computations off-chain, and providing a zero-knowledge proof to verify these computations on-chain, it is possible to increase transaction throughput: achieving scalability via a rollup. The SNARK proof basically serve to compress these expensive operations. We say the rollup transactions will take place inside the Layer 2 (L2), while the rollup will post proofs of valid state transition on the base Ethereum layer, or L1. We can differentiate between application-specific rollups and general-rollups, meant to scale the whole Ethereum network by generating proofs of valid state transition on the rollup's EVM. Both of these can also be classified in one of the following:
 
@@ -56,9 +56,10 @@ By executing computations off-chain, and providing a zero-knowledge proof to ver
 The data availability of validity-style rollups is guaranteed, as it is posted on-chain, but this results in a higher end cost for the user. For validium-style rollups, we assume that the operator will be the one to provide the data availability. This can result in censorship attacks, in which a dishonest operator does not batch certain transactions. We can think of validity rollups as a _proof of computation_, while validium rollups serve as both a _proof of computation_ and a _proof of knowledge_.
 
 ## SNARK Circuits
-
+// TODO
 
 ## The `circom` Language
+To generate these circuits, we will be using the [`circom`](https://docs.circom.io/) language, a circuit compiler written in Rust. This will allow us to compile our program's logic into a circuit, and all we need to generate the different ZK proofs. We will first be generating a low-level representation (R1CS), and then using a given input to generate the witness. To prove the witness, we will need to perform a trusted setup, after which we can export these verification tools to Solidity, to be used in our smart contract.
 
 
 ## STARKs

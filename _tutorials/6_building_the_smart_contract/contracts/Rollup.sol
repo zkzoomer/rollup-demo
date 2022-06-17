@@ -34,7 +34,6 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
     mapping(uint256 => address) public registeredTokens;  // token number => token address *ETH doesnt have an address
     uint256 public numTokens;  // number of approved tokens
 
-    mapping(uint256 => uint256) public deposits;  // leaf index => leaf hash
     mapping(uint256 => uint256) public updates;  // tx root => update index
     mapping(uint256 => bool) public processedWithdrawals;  // withdraw message hash => bool
 
@@ -220,12 +219,12 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
     }
 
 
-    function registerToken(address tokenContractAddress) public {
+    function registerToken(address tokenContractAddress) external {
         require(!pendingTokens[tokenContractAddress], "Token already registered");
         pendingTokens[tokenContractAddress] = true;
     }
 
-    function approveToken(address tokenContractAddress) public onlyCoordinator {
+    function approveToken(address tokenContractAddress) external onlyCoordinator {
         require(pendingTokens[tokenContractAddress], "Token was not registered");
         numTokens++;
         registeredTokens[numTokens] = tokenContractAddress;

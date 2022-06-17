@@ -10,12 +10,12 @@ A proposed potential application is having a swarm of drones (where nodes do not
 
 ## Tutorial Contents
 + [Rollup Fundamentals](./_tutorials/0_rollup_fundamentals/)
-+ [Introduction to SNARKs](./_tutorials/1_intoduction_to_snarks/)
-+ [Verifying an EdDSA Signature](./_tutorials/2_verifying_an_eddsa_signature/)
-+ [Verifying a Merkle Tree](./_tutorials/3_verifying_a_merkle_tree/)
-+ [Verifying a Single Transaction](./_tutorials/4_verifying_a_single_transaction/)
-+ [Verifying Multiple Transactions](./_tutorials/5_verifying_multiple_transactions/)
-+ [Verifying a Withdrawal](./_tutorials/6_verifying_a_withdrawal/)
++ [Verifying an EdDSA Signature](./_tutorials/1_verifying_an_eddsa_signature/)
++ [Verifying a Merkle Tree](./_tutorials/2_verifying_a_merkle_tree/)
++ [Verifying a Single Transaction](./_tutorials/3_verifying_a_single_transaction/)
++ [Verifying Multiple Transactions](./_tutorials/4_verifying_multiple_transactions/)
++ [Verifying a Withdrawal](./_tutorials/5_verifying_a_withdrawal/)
++ [Building the Smart Contract](./_tutorials/6_building_the_smart_contract/)
 
 ## Current Development State
 In the current implementation, users can transact different tokens in the L2 while an operator updates the L1 smart contract proving valid state transitions. Users can then withdraw their funds to the L1 by providing a valid signarure and a proof of withdrawal transaction inclusion in one of the transaction roots. We assume the operator to be **honest**: they will be collecting all the transactions and processing these batches to generate SNARK proofs of a valid state transition. The zero-knowledge proof gets verified by the L1 smart contract, storing the new state on-chain and thus completing the state transition. This implementation does not publish the transaction data to the L1: this is called a Validium style rollup, resulting in cheaper gas fees for users. We assume the operator will guarantee this data availability.

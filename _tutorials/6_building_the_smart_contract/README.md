@@ -25,14 +25,28 @@ Besides setting several variables like the coordinator, the constructor will def
 These three different contracts then get defined inside our `PoseidonMerkle` smart contract, which will handle all the hashing for our `Rollup` smart contract.
 
 ## Deposit to Rollup
-Users send the deposit transactions directly to the L1 smart contract, and the operator will add these to the balance tree, generating a new root. First, the smart contract will need to verify that the deposit is valid: the token sent is supported, and the estipulated quantity gets sent. The deposits awaiting to be added to the L2 get hashed inside the `pendingDeposits` array: 
+Users send the deposit transactions directly to the L1 smart contract, and the operator will add these to the balance tree, generating a new root. First, the smart contract will need to verify that the deposit is valid: the token sent is supported, and the estipulated quantity gets sent. The deposits awaiting to be added to the L2 get hashed inside the `pendingDeposits` array, following this scheme: 
 
 ![Batching Deposits](https://ethresear.ch/uploads/default/optimized/2X/6/65624d86c1420efcfe6df91d52b488d96e20e82c_2_690x348.png)
 
+The first element in the `pendingDeposits` array will contain the tallest perfect deposit subtree root. The operator can then add this first element by proving that there exists an empty subtree in the `currentRoot`, after which this `currentRoot` will be updated to reflect the inclusion of these deposits, the first element in `pendingDeposits` removed, and the funds will be allowed to operate inside the L2. The change in state inside the smart contract means that, once deposits have been processed, the next state transition will have as starting root the result of adding these new accounts.
+
 ## Verifying a State Transition
-Account states in the rollup chain get stored in a tree whose root is stored on-chain, and can only be changed by submitting a valid SNARK proof that verifies a valid state transition. 
+Account states in the rollup chain get stored in a tree whose root is stored on-chain, and can only be changed by submitting a valid SNARK proof that verifies a valid state transition. This valid state transition can be:
+- Result of adding a deposit batch to the L2. This more trivial case can be implemented directly in solidity, as it consits in proving that the balance tree has an empty branch and generating the new root. This results in a new balance root that gets reflected in the smart contract as the new `currentRoot`.
+- Result of processing a batch of transactions on the L2. The operator will submit a valid SNARK proof to the `update` function of the smart contract, generated following [chapter 4](../4_verifying_multiple_transactions/). The transaction root will also be recorded inside the smart contract.
 
 ## Verifying a Withdrawal Transaction
+After sending their L2 tokens to the zero address, a user will need to provide two proofs that show that:
 
+- Their withdrawal transaction was included in a previous batch. This is done by providing a valid transaction root (result of a valid state transition, stored in the contract), the actual L2 withdrawal transaction hash, and the branches that trace it back to the transaction root. This proves that the L2 withdrawal transaction has been batched.
+- They own the account that initiated the withdrawal in the L2. The SNARK proof is similar to the one done in [chapter 1](../1_verifying_an_eddsa_signature/), where they will prove ownership of the L2 private key by signing a message that is the hash of the corresponding L2 account nonce and the L1 address of the recipient.
 
+The L2 transaction hash will then have to be voided to prevent double spending. By also requesting a new signature for each transaction, we ensure that to successfully call the `withdraw` function you need to first perform a L2 withdrawal, and prove ownership of that transaction.
 ## Adding and approving new tokens
+By default, the L2 will support the native currency, ETH, for transactions. To whitelist other tokens for depositing on the L2, a two step process is involved:
+
+1. The function `registerToken` is called: this function is `external`, so it can be called by anyone. This will put the requested token in a pending list, awaiting approval.
+2. The function `approveToken` is called by the operator: after this the token will be available for deposits.
+
+To operate on the L2, first we need to deposit those funds on the L1 smart contract. As such, for a token to be available on the L2, it first needs to have been deposited, and for that we require that it is whitelisted. Thanks to this, we have a built-in bridge for a series of whitelisted tokens, where the logic and security rests on the Ethereum chain itself, unlike other current bridge implementations.

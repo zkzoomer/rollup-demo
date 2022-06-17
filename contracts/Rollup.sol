@@ -219,12 +219,12 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
     }
 
 
-    function registerToken(address tokenContractAddress) public {
+    function registerToken(address tokenContractAddress) external {
         require(!pendingTokens[tokenContractAddress], "Token already registered");
         pendingTokens[tokenContractAddress] = true;
     }
 
-    function approveToken(address tokenContractAddress) public onlyCoordinator {
+    function approveToken(address tokenContractAddress) external onlyCoordinator {
         require(pendingTokens[tokenContractAddress], "Token was not registered");
         numTokens++;
         registeredTokens[numTokens] = tokenContractAddress;
