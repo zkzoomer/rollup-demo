@@ -7,8 +7,8 @@ import "./WithdrawVerifier.sol";
 
 contract IPoseidonMerkle {
     uint[16] public zeroCache;
-    function getRootFromProof(uint256, uint256[] memory, uint256[] memory) public view returns(uint256) { }
-    function hashPoseidon(uint256[] calldata) public view returns(uint) { }
+    function getRootFromProof(uint256, uint256[] memory, uint256[] memory) external view returns(uint256) { }
+    function hashPoseidon(uint256[] calldata) external view returns(uint) { }
 }
 
 contract IERC20 {
@@ -60,11 +60,15 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         _;
     }
 
-    function updateState(uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[3] memory input) public onlyCoordinator {
+    function updateState(uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[15] memory input) external onlyCoordinator {
+        /* 
+        input values - used for data availability to reconstruct the chain
+        array.length = 3 (newRoot, txRoot, oldRoot) + 3 * 2 ** TX_DEPTH (the from_index, to_index and amount arrays)
+        */
         // Can only update forward
-        require(currentRoot == input[2], "Input does not match current root");
+        require(currentRoot == input[2]);  // Input does not match current root
         // Validate proof
-        require(verifyUpdateProof(a, b, c, input), "SNARK proof is invalid");
+        require(verifyUpdateProof(a, b, c, input));  // SNARK proof is invalid
         // Update merkle root
         currentRoot = input[0];
         updateNumber++;
@@ -72,28 +76,31 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         emit UpdatedState(input[0], input[1], input[2]); //newRoot, txRoot, oldRoot
     }
 
-    function deposit(uint[2] memory pubkey, uint amount, uint tokenType ) public payable {
+    function deposit(uint[2] memory pubkey, uint amount, uint tokenType ) external payable {
 
         if ( tokenType == 0 ) {
             require(
                 msg.sender == coordinator,
-                "tokenType 0 is reserved for coordinator");
+                "Reserved for coordinator"
+            ); 
             require(
-                amount == 0 && msg.value == 0,
-                "tokenType 0 does not have real value");
+                amount == 0 && msg.value == 0
+            );  // tokenType 0 does not have real value
         } else if ( tokenType == 1 ) {
             require(
                 msg.value > 0 && msg.value >= amount,
-                "msg.value must at least equal stated amount in wei");
+                "Insufficient amount"
+            ); 
         } else if ( tokenType > 1 ) {
             require(
                 amount > 0,
-                "token deposit must be greater than 0");
+                "Insufficient amount"
+            ); 
             address tokenContractAddress = registeredTokens[tokenType];
             tokenContract = IERC20(tokenContractAddress);
             require(
                 tokenContract.transferFrom(msg.sender, address(this), amount),
-                "token transfer not approved"
+                "Must approve token"
             );
         }
 
@@ -129,11 +136,11 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         }
     }
 
-    function processDeposits(uint subtreeDepth, uint[] memory subtreePosition, uint[] memory subtreeProof) public onlyCoordinator returns(uint256){
+    function processDeposits(uint subtreeDepth, uint[] memory subtreePosition, uint[] memory subtreeProof) external onlyCoordinator returns(uint256){
         uint emptySubtreeRoot = poseidonMerkle.zeroCache(subtreeDepth); //empty subtree of height 2
         require(currentRoot == poseidonMerkle.getRootFromProof(
-            emptySubtreeRoot, subtreePosition, subtreeProof),
-            "Specified subtree is not empty");
+            emptySubtreeRoot, subtreePosition, subtreeProof)
+        );  // Specified subtree is not empty
         currentRoot = poseidonMerkle.getRootFromProof(
             pendingDeposits[0], subtreePosition, subtreeProof);
         removeDeposit(0);
@@ -168,8 +175,6 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         processedWithdrawals[txLeaf] = true;
     }
 
-
-    // TODO: IMPLEMENT WITHDRAW
     function withdraw(
         uint256[9] memory txInfo,  //[pubkeyX, pubkeyY, index, toX ,toY, nonce, amount, token_type_from, txRoot]
         uint256[] memory position,
@@ -180,7 +185,6 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         uint256[2] memory c
     ) public {
         require(txInfo[7] > 0, "Invalid token type");
-        require(updates[txInfo[8]] > 0, "Transaction root does not exist");
 
         uint256 txLeaf = _verifyTx(txInfo);
         
@@ -211,13 +215,12 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
             tokenContract = IERC20(tokenContractAddress);
             require(
                 tokenContract.transfer(recipient, txInfo[6]),
-                "transfer failed"
+                "Transfer failed"
             );
         }
 
         emit Withdraw(txInfo, recipient);
     }
-
 
     function registerToken(address tokenContractAddress) external {
         require(!pendingTokens[tokenContractAddress], "Token already registered");
@@ -225,7 +228,7 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
     }
 
     function approveToken(address tokenContractAddress) external onlyCoordinator {
-        require(pendingTokens[tokenContractAddress], "Token was not registered");
+        require(pendingTokens[tokenContractAddress]);  // Token was not registered
         numTokens++;
         registeredTokens[numTokens] = tokenContractAddress;
         emit RegisteredToken(numTokens,tokenContractAddress);
@@ -233,7 +236,7 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
 
     // helper functions
     function removeDeposit(uint index) internal returns(uint[] memory) {
-        require(index < pendingDeposits.length, "Index is out of bounds");
+        require(index < pendingDeposits.length);  // Index is out of bounds
 
         for (uint i = index; i < pendingDeposits.length - 1; i++){
             pendingDeposits[i] = pendingDeposits[i+1];

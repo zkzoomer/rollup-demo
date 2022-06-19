@@ -49,7 +49,7 @@ contract PoseidonMerkle {
         poseidon5 = Poseidon5(_poseidon5);
     }
 
-    function getRootFromProof(uint256 _leaf, uint256[] memory _position, uint256[] memory _proof) public view returns(uint256) {
+    function getRootFromProof(uint256 _leaf, uint256[] memory _position, uint256[] memory _proof) external view returns(uint256) {
 
         uint256[] memory root = new uint256[](_proof.length);
 
@@ -71,7 +71,7 @@ contract PoseidonMerkle {
         
     }
 
-    function hashPoseidon(uint256[] calldata _array) public view returns(uint256) {
+    function hashPoseidon(uint256[] calldata _array) external view returns(uint256) {
 
         uint nInputs = _array.length;
         uint poseidonHash;

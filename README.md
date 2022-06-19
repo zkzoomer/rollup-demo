@@ -18,16 +18,15 @@ A proposed potential application is having a swarm of drones (where nodes do not
 + [Building the Smart Contract](./_tutorials/6_building_the_smart_contract/)
 
 ## Current Development State
-In the current implementation, users can transact different tokens in the L2 while an operator updates the L1 smart contract proving valid state transitions. Users can then withdraw their funds to the L1 by providing a valid signarure and a proof of withdrawal transaction inclusion in one of the transaction roots. We assume the operator to be **honest**: they will be collecting all the transactions and processing these batches to generate SNARK proofs of a valid state transition. The zero-knowledge proof gets verified by the L1 smart contract, storing the new state on-chain and thus completing the state transition. This implementation does not publish the transaction data to the L1: this is called a Validium style rollup, resulting in cheaper gas fees for users. We assume the operator will guarantee this data availability.
+In the current implementation, users can transact different tokens in the L2 while an operator updates the L1 smart contract proving valid state transitions. Users can then withdraw their funds to the L1 by providing a valid signarure and a proof of withdrawal transaction inclusion in one of the transaction roots. We assume the operator to be **honest**: they will be collecting all the transactions and processing these batches to generate SNARK proofs of a valid state transition. The zero-knowledge proof gets verified by the L1 smart contract, storing the new state on-chain and thus completing the state transition.
 
-A dishonest operator cannot forge signatures or create invalid state transitions: the security guarantees are given by the soundness of the SNARK proof and the reliability of the L1. At most, they can freeze funds by not incorporating user's transactions in a batch or withholding off-chain data to users.
+A dishonest operator cannot forge signatures or create invalid state transitions: the security guarantees are given by the soundness of the SNARK proof and the reliability of the L1. At most, they can freeze funds by not incorporating user's transactions in a batch.
 
 *The implementation as it stands still lacks the operator software needed to collect and process transactions in batches.
 
 ## Future improvements
-- The implementation can be changed to a validity style rollup by simply making the _private_ circuit inputs _public_.
 - Accounts on the L2 can only support a single token each: public keys are related to a token type. Ideally each should be token agnostic.
-- State updates can only be performed by the assigned operator.
+- State updates can only be performed by the assigned operator. This should be expanded to ensure greater decentralization and reliability.
 
 ## Acknowledgements
 This repository is based and extends on [RollupNC](https://github.com/rollupnc/RollupNC).

@@ -5,7 +5,7 @@ const {stringifyBigInts, unstringifyBigInts} = require('./stringifybigint.js')
 module.exports = class Transaction  {
     constructor(
           _fromX, _fromY, _fromIndex, 
-          _toX, _toY, 
+          _toX, _toY, _toIndex,
           _nonce, _amount, _tokenType, 
           _R8x, _R8y, _S
         ) {
@@ -14,6 +14,7 @@ module.exports = class Transaction  {
           this.fromIndex = _fromIndex;
           this.toX = _toX;
           this.toY = _toY;
+          this.toIndex = _toIndex;
           this.nonce = _nonce;
           this.amount = _amount
           this.tokenType = _tokenType;

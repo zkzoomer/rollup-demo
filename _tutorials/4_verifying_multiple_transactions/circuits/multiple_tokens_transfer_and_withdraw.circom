@@ -15,7 +15,7 @@ template ProcessTxs(n, m) {
     // so for each proof, we update 2**m transactions
 
     // STEP 0: initialize signals
-    // account tree initial root
+    // transaction tree initial root
     signal input tx_root;
 
     // paths for proving tx in tx tree
@@ -35,12 +35,6 @@ template ProcessTxs(n, m) {
     // Merkle proof for receiver account in old balance tree
     signal input paths2_root_to[2**m][n];
     signal input paths2root_to_pos[2**m][n];
-
-    /* // TODO ????
-    // Merkle proof for sender account in new balance tree
-    signal input paths2new_root_from[2**m][n];
-    // Merkle proof for receiver account in new balance tree
-    signal input paths2new_root_to[2**m][n]; */
 
     // tx info, 10 fields
     signal input from_x[2**m]; //sender address x coordinate

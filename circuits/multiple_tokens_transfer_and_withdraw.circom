@@ -15,7 +15,7 @@ template ProcessTxs(n, m) {
     // so for each proof, we update 2**m transactions
 
     // STEP 0: initialize signals
-    // account tree initial root
+    // transaction tree initial root
     signal input tx_root;
 
     // paths for proving tx in tx tree
@@ -36,18 +36,13 @@ template ProcessTxs(n, m) {
     signal input paths2_root_to[2**m][n];
     signal input paths2root_to_pos[2**m][n];
 
-    /* // TODO ????
-    // Merkle proof for sender account in new balance tree
-    signal input paths2new_root_from[2**m][n];
-    // Merkle proof for receiver account in new balance tree
-    signal input paths2new_root_to[2**m][n]; */
-
     // tx info, 10 fields
     signal input from_x[2**m]; //sender address x coordinate
     signal input from_y[2**m]; //sender address y coordinate
     signal input from_index[2**m]; // sender account leaf index
     signal input to_x[2**m]; // receiver address x coordinate
     signal input to_y[2**m]; // receiver address y coordinate
+    signal input to_index[2**m]; // receiver account leaf index
     signal input nonce_from[2**m]; // sender account nonce
     signal input amount[2**m]; // amount being transferred
     signal input token_type_from[2**m]; // sender token type
@@ -87,6 +82,23 @@ template ProcessTxs(n, m) {
 
     // checking all transactions
     for (var i = 0; i < 2**m ; i++) {
+
+        // TODO: verify that provided from_index is the actual one by comparing it with the result of moving through reversed paths2_root_pos and arriving at a leaf
+        // If it is not, then the from_index is not the real one
+
+        // verifying from_index
+        var from_idx = 0;
+        for (var k = n - 1; k >= 0; k--) {
+            from_idx += paths2root_from_pos[i][k] * 2 ** k;
+        }
+        assert(from_idx == from_index[i]);
+
+        // verifying to_index
+        var to_idx = 0;
+        for (var k = n - 1; k >= 0; k--) {
+            to_idx += paths2root_to_pos[i][k] * 2 ** k;
+        }
+        assert(to_idx == to_index[i]);
 
         // transaction existence and signature check
         txExistence[i] = TxExistence(m);
@@ -205,4 +217,4 @@ template ProcessTxs(n, m) {
     
 }
 
-component main {public [tx_root, current_state]} = ProcessTxs(4, 2);
+component main {public [tx_root, current_state, from_index, to_index, amount]} = ProcessTxs(4, 2);

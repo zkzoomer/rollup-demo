@@ -7,8 +7,8 @@ import "./WithdrawVerifier.sol";
 
 contract IPoseidonMerkle {
     uint[16] public zeroCache;
-    function getRootFromProof(uint256, uint256[] memory, uint256[] memory) public view returns(uint256) { }
-    function hashPoseidon(uint256[] calldata) public view returns(uint) { }
+    function getRootFromProof(uint256, uint256[] memory, uint256[] memory) external view returns(uint256) { }
+    function hashPoseidon(uint256[] calldata) external view returns(uint) { }
 }
 
 contract IERC20 {
@@ -60,7 +60,7 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         _;
     }
 
-    function updateState(uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[3] memory input) public onlyCoordinator {
+    function updateState(uint[2] memory a, uint[2][2] memory b, uint[2] memory c, uint[3] memory input) external onlyCoordinator {
         // Can only update forward
         require(currentRoot == input[2], "Input does not match current root");
         // Validate proof
@@ -72,7 +72,7 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         emit UpdatedState(input[0], input[1], input[2]); //newRoot, txRoot, oldRoot
     }
 
-    function deposit(uint[2] memory pubkey, uint amount, uint tokenType ) public payable {
+    function deposit(uint[2] memory pubkey, uint amount, uint tokenType ) external payable {
 
         if ( tokenType == 0 ) {
             require(
@@ -129,7 +129,7 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         }
     }
 
-    function processDeposits(uint subtreeDepth, uint[] memory subtreePosition, uint[] memory subtreeProof) public onlyCoordinator returns(uint256){
+    function processDeposits(uint subtreeDepth, uint[] memory subtreePosition, uint[] memory subtreeProof) external onlyCoordinator returns(uint256){
         uint emptySubtreeRoot = poseidonMerkle.zeroCache(subtreeDepth); //empty subtree of height 2
         require(currentRoot == poseidonMerkle.getRootFromProof(
             emptySubtreeRoot, subtreePosition, subtreeProof),
@@ -168,8 +168,6 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
         processedWithdrawals[txLeaf] = true;
     }
 
-
-    // TODO: IMPLEMENT WITHDRAW
     function withdraw(
         uint256[9] memory txInfo,  //[pubkeyX, pubkeyY, index, toX ,toY, nonce, amount, token_type_from, txRoot]
         uint256[] memory position,
@@ -217,7 +215,6 @@ contract Rollup is UpdateVerifier, WithdrawVerifier {
 
         emit Withdraw(txInfo, recipient);
     }
-
 
     function registerToken(address tokenContractAddress) external {
         require(!pendingTokens[tokenContractAddress], "Token already registered");
